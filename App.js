@@ -15,6 +15,7 @@ import {
 	Details,
 	Search2,
 	Profile,
+	Splash,
 } from './Screens';
 
 const AuthStack = createStackNavigator();
@@ -60,24 +61,60 @@ const TabsScreen = () => (
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+	const [isLoading, setIsLoading] = React.useState(true);
+	const [userToken, setUserToken] = React.useState(null);
+
+	const authContext = React.useMemo(() => {
+		return {
+			signIn: () => {
+				setIsLoading(false);
+				setToken('asdf');
+			},
+			signUp: () => {
+				setIsLoading(false);
+				setToken('asdf');
+			},
+			signOut: () => {
+				setIsLoading(false);
+				setToken(null);
+			},
+		};
+	}, []);
+
+	React.useEffect(() => {
+		const timeOut = setTimeout(() => {
+			setIsLoading(false);
+		}, 1000);
+		return () => {
+			clearTimeout(timeOut);
+		};
+	}, []);
+
+	if (isLoading) {
+		return <Splash />;
+	}
+
 	return (
 		<NavigationContainer>
-			<Drawer.Navigator>
-				<Drawer.Screen name='Home' component={TabsScreen} />
-				<Drawer.Screen name='Profile' component={ProfileStackScreen} />
-			</Drawer.Navigator>
-			{/* <AuthStack.Navigator>
-				<AuthStack.Screen
-					name='SignIn'
-					component={SignIn}
-					options={{ title: 'Sign In' }}
-				/>
-				<AuthStack.Screen
-					name='CreateAccount'
-					component={CreateAccount}
-					options={{ title: 'Create Account' }}
-				/>
-			</AuthStack.Navigator> */}
+			{userToken ? (
+				<Drawer.Navigator>
+					<Drawer.Screen name='Home' component={TabsScreen} />
+					<Drawer.Screen name='Profile' component={ProfileStackScreen} />
+				</Drawer.Navigator>
+			) : (
+				<AuthStack.Navigator>
+					<AuthStack.Screen
+						name='SignIn'
+						component={SignIn}
+						options={{ title: 'Sign In' }}
+					/>
+					<AuthStack.Screen
+						name='CreateAccount'
+						component={CreateAccount}
+						options={{ title: 'Create Account' }}
+					/>
+				</AuthStack.Navigator>
+			)}
 		</NavigationContainer>
 	);
 }
